@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:provider_app/Services/auth_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../Model/login_model.dart';
 import '../Services/common_services.dart';
 import '../Services/login_details_service.dart';
 import '../Services/qr_storage_service.dart';
 import '../Utils/colors.dart';
+import '../Utils/utils.dart';
 import '../widgets/const_widgets.dart';
 import 'login_details_page.dart';
+import 'login_screen.dart';
 
 class QrPage extends StatefulWidget {
   final String? loginTime;
@@ -72,15 +76,7 @@ class _QrPageState extends State<QrPage> {
                   margin: const EdgeInsets.only(bottom: 20),
                   child: ActionButton(
                     callback: () async {
-                      bool result = await loginUser(context);
-                      result == true
-                          // ignore: use_build_context_synchronously
-                          ? Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const LoginDetails()),
-                            )
-                          : null;
+                      await loginUser(context);
                     },
                     actionName: 'SAVE',
                   ),
@@ -142,7 +138,7 @@ class _QrPageState extends State<QrPage> {
                       ),
                     ),
                     Container(
-                      margin: const EdgeInsets.all(20),
+                      margin: const EdgeInsets.all(18),
                       padding: const EdgeInsets.only(
                         left: 60,
                       ),
@@ -155,7 +151,7 @@ class _QrPageState extends State<QrPage> {
                       ),
                     ),
                     Container(
-                      margin: const EdgeInsets.all(20),
+                      margin: const EdgeInsets.all(13),
                       padding: const EdgeInsets.only(
                         left: 60,
                       ),
@@ -178,7 +174,15 @@ class _QrPageState extends State<QrPage> {
           ),
           /* Logout Button */
           LogoutButton(
-            callback: () {},
+            callback: () {
+              final auth = Provider.of<AuthProvider>(context, listen: false);
+              auth.userSignOut(context).whenComplete(() => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
+                  ));
+            },
           ),
         ],
       ),
@@ -200,6 +204,12 @@ class _QrPageState extends State<QrPage> {
     );
     // ignore: use_build_context_synchronously
     bool result = await UserService().saveUserDetails(loginModel, context);
+    result == true
+        ?
+        // ignore: use_build_context_synchronously
+        showSnackBar(context, "Login Details saved Successfully")
+        // ignore: use_build_context_synchronously
+        : showSnackBar(context, "Login Details not saved");
     return result == true
         ?
         // ignore: use_build_context_synchronously
@@ -209,6 +219,7 @@ class _QrPageState extends State<QrPage> {
               builder: (context) => const LoginDetails(),
             ),
           )
-        : "Not Added Successfully";
+        // ignore: use_build_context_synchronously
+        : false;
   }
 }

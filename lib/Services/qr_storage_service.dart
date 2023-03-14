@@ -43,8 +43,6 @@ class QrStorageService {
 
     if (qrValidationResult.status == QrValidationStatus.valid) {
       final qrCode = qrValidationResult.qrCode;
-      const String title = 'Qr';
-      const String address = 'image';
       final painter = QrPainter.withQr(
         qr: qrCode!,
         color: const Color(0xFF000000),
@@ -69,13 +67,9 @@ class QrStorageService {
       );
 
       await screenshotController
-          .captureFromWidget(Column(
-        children: [
-          const Text(title),
-          Image.file(qrFile),
-          const Text(address),
-        ],
-      ))
+          .captureFromWidget(
+        Image.file(qrFile),
+      )
           .then((capturedImage) async {
         await widgetToImageFile(capturedImage);
       });

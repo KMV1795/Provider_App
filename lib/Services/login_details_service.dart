@@ -1,68 +1,77 @@
-// ignore_for_file: use_build_context_synchronously,
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:provider_app/Services/auth_provider.dart';
 import '../Model/login_model.dart';
 import 'common_services.dart';
 
 class UserService {
-  final FirebaseFirestore _firebaseFireStore = FirebaseFirestore.instance;
   final user = FirebaseFirestore.instance.collection('users');
 
-  bool added = false;
+  bool _added = false;
+  bool get added => _added;
 
   String loginTime = CommonService().getLoginTime();
   String loginDate = CommonService().getLoginDate();
   String preDate = CommonService().getYesterdayDate();
 
-  Stream<List<LoginModel>> todayLogin() => FirebaseFirestore.instance
-      .collection('users')
-      .doc(user.id)
-      .collection('loginDetails')
-      .where('date', isEqualTo: loginDate)
-      .snapshots()
-      .map((snapshot) =>
-          snapshot.docs.map((doc) => LoginModel.fromJson(doc.data())).toList());
+  getTodayLogin(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
 
-  Stream<List<LoginModel>> preLogin() => FirebaseFirestore.instance
-      .collection('users')
-      .doc(user.id)
-      .collection('loginDetails')
-      .where('date', isEqualTo: preDate)
-      .snapshots()
-      .map((snapshot) =>
-          snapshot.docs.map((doc) => LoginModel.fromJson(doc.data())).toList());
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(auth.uid)
+        .collection('loginDetails')
+        .where('date', isEqualTo: loginDate)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => LoginModel.fromJson(doc.data()))
+            .toList());
+  }
 
-  Stream<List<LoginModel>> otherLogin() => FirebaseFirestore.instance
-      .collection('users')
-      .doc(user.id)
-      .collection('loginDetails')
-      .snapshots()
-      .map((snapshot) =>
-          snapshot.docs.map((doc) => LoginModel.fromJson(doc.data())).toList());
+  getPreLogin(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(auth.uid)
+        .collection('loginDetails')
+        .where('date', isEqualTo: preDate)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => LoginModel.fromJson(doc.data()))
+            .toList());
+  }
+
+  getOtherLogin(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(auth.uid)
+        .collection('loginDetails')
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => LoginModel.fromJson(doc.data()))
+            .toList());
+  }
 
   Future saveUserDetails(
     LoginModel loginModel,
     BuildContext context,
   ) async {
-    final user = _firebaseFireStore.collection('users');
-    final docUser = user.doc(user.id).collection('loginDetails').doc();
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final docUser = user.doc(auth.uid).collection('loginDetails').doc();
     loginModel.id = docUser.id;
     final json = loginModel.toJson();
-
     try {
+      _added = false;
       await docUser.set(json);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("User Ip Address and Location Added Sucessfully"),
-      ));
-      added = true;
-      return added;
+      _added = true;
+      return true;
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("User Ip Address and Location Not Saved \n$e"),
-      ));
-      added = false;
-      return added;
+      _added = false;
+      return false;
     }
   }
 }

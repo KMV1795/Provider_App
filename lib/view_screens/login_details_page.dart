@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../Model/login_model.dart';
+import '../Services/auth_provider.dart';
 import '../Services/login_details_service.dart';
 import '../Utils/colors.dart';
 import '../widgets/const_widgets.dart';
+import 'login_screen.dart';
 
 class LoginDetails extends StatefulWidget {
   const LoginDetails({Key? key}) : super(key: key);
@@ -99,7 +102,16 @@ class _LoginDetailsState extends State<LoginDetails> {
                       color: textColor,
                     )),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    final auth =
+                        Provider.of<AuthProvider>(context, listen: false);
+                    auth.userSignOut(context).whenComplete(() => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LoginScreen(),
+                          ),
+                        ));
+                  },
                   child: const Text(
                     "LOGOUT",
                     style: TextStyle(
@@ -118,11 +130,12 @@ class _LoginDetailsState extends State<LoginDetails> {
 
   Widget todayList() {
     return StreamBuilder<List<LoginModel>>(
-        stream: UserService().todayLogin(),
+        stream: UserService().getTodayLogin(context),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(
-              child: Text("Something went wrong ${snapshot.hasError}"),
+              child: Text("Something went wrong ${snapshot.hasError}",
+                  style: const TextStyle(color: textColor)),
             );
           } else if (snapshot.hasData) {
             final loginModel = snapshot.data!;
@@ -201,11 +214,12 @@ class _LoginDetailsState extends State<LoginDetails> {
 
   Widget yesterDayList() {
     return StreamBuilder<List<LoginModel>>(
-        stream: UserService().preLogin(),
+        stream: UserService().getPreLogin(context),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(
-              child: Text("Something went wrong ${snapshot.hasError}"),
+              child: Text("Something went wrong ${snapshot.hasError}",
+                  style: const TextStyle(color: textColor)),
             );
           } else if (snapshot.hasData) {
             final loginModel = snapshot.data!;
@@ -284,11 +298,12 @@ class _LoginDetailsState extends State<LoginDetails> {
 
   Widget otherList() {
     return StreamBuilder<List<LoginModel>>(
-        stream: UserService().otherLogin(),
+        stream: UserService().getOtherLogin(context),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(
-              child: Text("Something went wrong ${snapshot.hasError}"),
+              child: Text("Something went wrong ${snapshot.hasError}",
+                  style: const TextStyle(color: textColor)),
             );
           } else if (snapshot.hasData) {
             final loginModel = snapshot.data!;

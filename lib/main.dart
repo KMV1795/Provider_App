@@ -2,9 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:provider_app/firebase_options.dart';
-import 'package:provider_app/view_screens/login_page.dart';
-import 'Services/login_provider.dart';
-import 'view_screens/qr_page.dart';
+import 'package:provider_app/view_screens/screen_navigation.dart';
+import 'Services/auth_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,9 +19,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) => LoginProvider(),
-        ),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: const MaterialApp(
         title: 'QR Demo App',
@@ -30,24 +27,5 @@ class MyApp extends StatelessWidget {
         home: ScreensController(),
       ),
     );
-  }
-}
-
-class ScreensController extends StatelessWidget {
-  const ScreensController({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final auth = Provider.of<LoginProvider>(context);
-    if (auth.isLoggedIn == true) {
-      return const QrPage(
-        ip: '',
-        location: '',
-        loginDate: '',
-        loginTime: '',
-      );
-    } else {
-      return const LoginPage();
-    }
   }
 }
