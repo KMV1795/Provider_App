@@ -105,12 +105,12 @@ class _LoginDetailsState extends State<LoginDetails> {
                   onPressed: () {
                     final auth =
                         Provider.of<AuthProvider>(context, listen: false);
-                    auth.userSignOut(context).whenComplete(() => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginScreen(),
-                          ),
-                        ));
+                   auth.userSignOut(context).then((value) =>  Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LoginScreen(),
+                ),
+              ));
                   },
                   child: const Text(
                     "LOGOUT",
