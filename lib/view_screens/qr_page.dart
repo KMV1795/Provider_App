@@ -176,12 +176,12 @@ class _QrPageState extends State<QrPage> {
           LogoutButton(
             callback: () {
               final auth = Provider.of<AuthProvider>(context, listen: false);
-              auth.userSignOut(context).whenComplete(() => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LoginScreen(),
-                    ),
-                  ));
+              auth.userSignOut(context).then((value) =>  Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LoginScreen(),
+                ),
+              ));
             },
           ),
         ],
